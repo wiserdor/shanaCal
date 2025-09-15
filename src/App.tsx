@@ -141,7 +141,7 @@ function App() {
           <div className="flex justify-between items-center py-4">
             {/* Logo/Title */}
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
-              יוצר לוח השנה האישי
+              מחולל לוח שנה
             </h1>
 
             {/* Desktop Navigation */}
