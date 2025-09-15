@@ -11,6 +11,7 @@ import { LocalStorageService } from "./services/localStorage";
 import { PhotoStorageService } from "./services/photoStorage";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Menu, X } from "lucide-react";
 
 function App() {
   const [currentStep, setCurrentStep] = useState<
@@ -28,6 +29,7 @@ function App() {
   });
   const [calendarMonths] = useState(generateCalendarMonths());
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Load data from localStorage on component mount
   useEffect(() => {
@@ -137,10 +139,13 @@ function App() {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <h1 className="text-3xl font-bold text-gray-900">
+            {/* Logo/Title */}
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
               יוצר לוח השנה האישי
             </h1>
-            <div className="flex items-center space-x-4">
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-4 space-x-reverse">
               <StorageIndicator />
               <div className="text-sm text-gray-600">
                 הנתונים נשמרים אוטומטית
@@ -173,11 +178,68 @@ function App() {
                 התחל מחדש
               </Button>
             </div>
+
+            {/* Mobile Menu Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="md:hidden"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </Button>
           </div>
+
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden border-t border-gray-200 py-4">
+              <div className="flex flex-col space-y-4 space-y-reverse">
+                <div className="flex items-center justify-between">
+                  <StorageIndicator />
+                </div>
+                <div className="text-sm text-gray-600 text-center">
+                  הנתונים נשמרים אוטומטית
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => {
+                    if (
+                      confirm(
+                        "האם אתה בטוח שברצונך למחוק את כל הנתונים ולהתחיל מחדש?"
+                      )
+                    ) {
+                      LocalStorageService.clearAll();
+                      PhotoStorageService.clearPhotos();
+                      setPhotos([]);
+                      setPersonalDates([]);
+                      setCurrentStep("photos");
+                      setCustomization({
+                        backgroundColor: "#ffffff",
+                        textColor: "#000000",
+                        accentColor: "#3b82f6",
+                        fontFamily: "Noto Sans Hebrew",
+                        fontSize: 16,
+                        imageFitMode: "cover",
+                      });
+                      setIsMobileMenuOpen(false);
+                    }
+                  }}
+                >
+                  התחל מחדש
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         <Tabs
           value={currentStep}
           onValueChange={(value) =>
@@ -187,12 +249,25 @@ function App() {
           }
           className="w-full"
         >
-          <TabsList className="grid w-full grid-cols-5 mb-8" dir="rtl">
-            <TabsTrigger value="photos">העלאת תמונות</TabsTrigger>
-            <TabsTrigger value="dates">תאריכים אישיים</TabsTrigger>
-            <TabsTrigger value="customize">התאמה אישית</TabsTrigger>
-            <TabsTrigger value="preview">תצוגה מקדימה</TabsTrigger>
-            <TabsTrigger value="export">ייצוא</TabsTrigger>
+          <TabsList
+            className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 mb-4 sm:mb-8 h-auto"
+            dir="rtl"
+          >
+            <TabsTrigger value="photos" className="text-xs sm:text-sm py-2">
+              העלאת תמונות
+            </TabsTrigger>
+            <TabsTrigger value="dates" className="text-xs sm:text-sm py-2">
+              תאריכים אישיים
+            </TabsTrigger>
+            <TabsTrigger value="customize" className="text-xs sm:text-sm py-2">
+              התאמה אישית
+            </TabsTrigger>
+            <TabsTrigger value="preview" className="text-xs sm:text-sm py-2">
+              תצוגה מקדימה
+            </TabsTrigger>
+            <TabsTrigger value="export" className="text-xs sm:text-sm py-2">
+              ייצוא
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="photos">
