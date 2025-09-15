@@ -168,16 +168,20 @@ export function ExportPanel({
             <!-- Content Section: Collage and Calendar -->
             <div style="display: flex; flex: 1; gap: 40px; align-items: stretch; min-height: 600px;">
               <!-- Photo Collage Section -->
-              <div style="flex: 1; display: flex; flex-direction: column; min-height: 600px;">
-                <div style="width: 100%; height: 100%; display: flex; flex: 1;">
+              <div style="flex: 1; display: flex; flex-direction: column; height: 100%;">
+                <div style="width: 100%; height: 100%; display: flex; flex: 1; min-height: 600px;">
                   ${collageHTML}
                 </div>
               </div>
               
               <!-- Calendar Section -->
-              <div style="flex: 2;">
+              <div style="flex: 2; display: flex; flex-direction: column; align-self: flex-start;">
                 <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
-                  ${generateCalendarHTML(month, personalDates, customization)}
+                  ${await generateCalendarHTML(
+                    month,
+                    personalDates,
+                    customization
+                  )}
                 </div>
               </div>
             </div>
@@ -189,7 +193,7 @@ export function ExportPanel({
         // Convert to canvas
         const canvas = await html2canvas(tempDiv, {
           width: 1400,
-          height: 1000,
+          height: 1100, // Increased height to accommodate 6-row months
           scale: 4, // Even higher scale for better quality
           useCORS: true,
           allowTaint: true,
@@ -223,7 +227,7 @@ export function ExportPanel({
     }
   };
 
-  const generateCalendarHTML = (
+  const generateCalendarHTML = async (
     month: Date,
     personalDates: PersonalDate[],
     customization: Customization
@@ -240,6 +244,28 @@ export function ExportPanel({
     ).getDay();
     const dayNames = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
 
+    // Calculate number of weeks needed for this month
+    const totalCells = firstDay + daysInMonth;
+    const weeksNeeded = Math.ceil(totalCells / 7);
+
+    // Adjust cell height based on number of weeks
+    const cellHeight = weeksNeeded === 6 ? "85px" : "100px";
+
+    // Load Hebrew holidays for this month
+    let monthHolidays: { date: string; title: string }[] = [];
+    try {
+      monthHolidays = await hebrewCalendarService.getHolidays(
+        month.getFullYear(),
+        month.getMonth() + 1
+      );
+    } catch {
+      // Use fallback data
+      monthHolidays = hebrewCalendarService.getFallbackHolidays(
+        month.getFullYear(),
+        month.getMonth() + 1
+      );
+    }
+
     let html = "";
 
     // Day headers
@@ -253,7 +279,7 @@ export function ExportPanel({
 
     // Empty cells for days before the first day
     for (let i = 0; i < firstDay; i++) {
-      html += '<div style="height: 60px; border: 1px solid #eee;"></div>';
+      html += `<div style="height: ${cellHeight}; border: 1px solid #eee;"></div>`;
     }
 
     // Days of the month
@@ -265,18 +291,37 @@ export function ExportPanel({
           pd.date.getFullYear() === month.getFullYear()
       );
 
+      // Get Hebrew holidays for this day
+      const dateStr = new Date(month.getFullYear(), month.getMonth(), day)
+        .toISOString()
+        .split("T")[0];
+      const holidaysForDay = monthHolidays.filter(
+        (holiday) => holiday.date === dateStr
+      );
+
       html += `
-        <div style="height: 60px; border: 1px solid #eee; padding: 4px; position: relative;">
-          <div style="font-weight: bold; font-size: 14px; margin-bottom: 2px;">${day}</div>
-          ${personalDatesForDay
-            .map(
-              (pd) => `
-            <div style="background: #e3f2fd; color: #1976d2; font-size: 10px; padding: 1px 2px; border-radius: 2px; margin-bottom: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${pd.title}">
-              ${pd.title}
-            </div>
-          `
-            )
-            .join("")}
+        <div style="height: ${cellHeight}; border: 1px solid #eee; padding: 4px; position: relative; display: flex; flex-direction: column;">
+          <div style="font-weight: bold; font-size: 14px; margin-bottom: 2px; flex-shrink: 0;">${day}</div>
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 1px; overflow: visible; min-height: 0;">
+            ${personalDatesForDay
+              .map(
+                (pd) => `
+              <div style="background: #e3f2fd; color: #1976d2; font-size: 8px; padding: 2px 4px; border-radius: 2px; line-height: 1.1; word-wrap: break-word; overflow-wrap: break-word; hyphens: auto; white-space: normal; max-width: 100%; text-align: center; direction: rtl;" title="${pd.title}">
+                ${pd.title}
+              </div>
+            `
+              )
+              .join("")}
+            ${holidaysForDay
+              .map(
+                (holiday) => `
+              <div style="background: #ffebee; color: #c62828; font-size: 8px; padding: 2px 4px; border-radius: 2px; line-height: 1.1; word-wrap: break-word; overflow-wrap: break-word; hyphens: auto; white-space: normal; max-width: 100%; text-align: center; direction: rtl;" title="${holiday.title}">
+                ${holiday.title}
+              </div>
+            `
+              )
+              .join("")}
+          </div>
         </div>
       `;
     }

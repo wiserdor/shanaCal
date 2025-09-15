@@ -159,7 +159,8 @@ export function Calendar({
           {personalDatesForDay.map((pd) => (
             <div
               key={pd.id}
-              className="text-xs bg-blue-100 text-blue-800 px-1 rounded mb-1 truncate"
+              className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded mb-1 truncate text-center"
+              style={{ direction: "rtl" }}
               title={pd.title}
             >
               {pd.title}
@@ -170,7 +171,8 @@ export function Calendar({
           {holidaysForDay.map((holiday, index) => (
             <div
               key={index}
-              className="text-xs bg-red-100 text-red-800 px-1 rounded mb-1 truncate"
+              className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded mb-1 truncate text-center"
+              style={{ direction: "rtl" }}
               title={holiday.title}
             >
               {holiday.title}

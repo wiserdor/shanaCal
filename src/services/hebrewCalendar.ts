@@ -28,7 +28,7 @@ class HebrewCalendarService {
       const endStr = endDate.toISOString().split("T")[0];
 
       const response = await fetch(
-        `${this.baseUrl}?v=1&cfg=json&year=${year}&month=${month}&maj=on&min=on&mod=on&nx=on&ss=on&mf=on&c=on&geo=none&start=${startStr}&end=${endStr}`
+        `${this.baseUrl}?v=1&cfg=json&year=${year}&month=${month}&maj=on&min=on&mod=on&nx=on&ss=on&mf=on&c=on&geo=none&lg=he&start=${startStr}&end=${endStr}`
       );
 
       if (!response.ok) {
@@ -129,28 +129,56 @@ class HebrewCalendarService {
         { title: "ראש השנה", date: "2025-09-22", category: "holiday" },
         { title: "יום כיפור", date: "2025-10-01", category: "holiday" },
         { title: "סוכות", date: "2025-10-06", category: "holiday" },
+        { title: "ליל סליחות", date: "2025-09-14", category: "holiday" },
       ],
       "2025-10": [
         // October 2025
         { title: "שמיני עצרת", date: "2025-10-13", category: "holiday" },
         { title: "שמחת תורה", date: "2025-10-14", category: "holiday" },
+        { title: "ערב ראש השנה", date: "2025-09-21", category: "holiday" },
+        { title: "ערב יום כיפור", date: "2025-09-30", category: "holiday" },
+        { title: "ערב סוכות", date: "2025-10-05", category: "holiday" },
+        { title: "ערב שמיני עצרת", date: "2025-10-12", category: "holiday" },
+        { title: "ערב שמחת תורה", date: "2025-10-13", category: "holiday" },
+        { title: "צום גדליה", date: "2025-09-26", category: "fast" },
+        { title: "שבת שובה", date: "2025-09-28", category: "holiday" },
       ],
       "2025-12": [
         // December 2025
         { title: "חנוכה", date: "2025-12-25", category: "holiday" },
+        { title: "עשרה בטבת", date: "2025-12-30", category: "fast" },
+      ],
+      "2026-1": [
+        // January 2026
+        { title: "טו בשבט", date: "2026-01-25", category: "holiday" },
       ],
       "2026-3": [
         // March 2026
         { title: "פורים", date: "2026-03-13", category: "holiday" },
+        { title: "תענית אסתר", date: "2026-03-12", category: "fast" },
+        { title: "ערב פורים", date: "2026-03-12", category: "holiday" },
       ],
       "2026-4": [
         // April 2026
         { title: "פסח", date: "2026-04-22", category: "holiday" },
+        { title: "ערב פסח", date: "2026-04-21", category: "holiday" },
+        { title: "תענית בכורות", date: "2026-04-21", category: "fast" },
+        { title: "חול המועד פסח", date: "2026-04-23", category: "holiday" },
+        { title: "שבת הגדול", date: "2026-04-19", category: "holiday" },
       ],
       "2026-5": [
         // May 2026
         { title: "יום העצמאות", date: "2026-05-01", category: "holiday" },
         { title: "שבועות", date: "2026-05-11", category: "holiday" },
+        { title: "ערב שבועות", date: "2026-05-10", category: "holiday" },
+        { title: "יום השואה", date: "2026-04-28", category: "holiday" },
+        { title: "יום הזכרון", date: "2026-04-30", category: "holiday" },
+        { title: "לג בעומר", date: "2026-05-16", category: "holiday" },
+      ],
+      "2026-7": [
+        // July 2026
+        { title: "תשעה באב", date: "2026-07-26", category: "fast" },
+        { title: "ערב תשעה באב", date: "2026-07-25", category: "holiday" },
       ],
     };
 
