@@ -94,11 +94,6 @@ export function ExportPanel({
         tempDiv.style.position = "absolute";
         tempDiv.style.left = "-9999px";
         tempDiv.style.top = "0";
-        tempDiv.style.backgroundColor = customization.backgroundColor;
-        tempDiv.style.color = customization.textColor;
-        tempDiv.style.fontFamily = customization.fontFamily;
-        tempDiv.style.fontSize = `${customization.fontSize}px`;
-        tempDiv.style.padding = "40px";
         tempDiv.style.direction = "rtl";
 
         // Add month content
@@ -142,6 +137,13 @@ export function ExportPanel({
         }
 
         console.log("Debug - Final hebrewMonthYear:", hebrewMonthYear);
+        console.log("Debug - Customization colors:", {
+          backgroundColor: customization.backgroundColor,
+          textColor: customization.textColor,
+          accentColor: customization.accentColor,
+          fontFamily: customization.fontFamily,
+          fontSize: customization.fontSize
+        });
 
         const collageHTML = collageDataUrl
           ? `<img src="${collageDataUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.15); image-rendering: high-quality; image-rendering: -webkit-optimize-contrast;" alt="קולאז' תמונות" />`
@@ -152,7 +154,7 @@ export function ExportPanel({
           : `<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.15);"></div>`;
 
         tempDiv.innerHTML = `
-          <div style="display: flex; flex-direction: column; height: 100%; gap: 30px;">
+          <div style="display: flex; flex-direction: column; height: 100%; gap: 30px; background-color: ${customization.backgroundColor}; color: ${customization.textColor}; font-family: ${customization.fontFamily}; font-size: ${customization.fontSize}px; padding: 40px;">
             <!-- Title Section -->
             <div style="text-align: center; margin-bottom: 20px;">
               <h1 style="color: ${
@@ -160,7 +162,7 @@ export function ExportPanel({
               }; font-size: 32px; margin-bottom: 10px; font-weight: bold;">
                 ${monthName}
               </h1>
-              <p style="font-size: 16px; opacity: 0.8; color: #666;">
+              <p style="font-size: 16px; opacity: 0.8; color: ${customization.textColor};">
                 ${hebrewMonthYear}
               </p>
             </div>
