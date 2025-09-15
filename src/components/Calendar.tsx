@@ -222,9 +222,9 @@ export function Calendar({
       </div>
 
       {/* Calendar Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Photo Collage */}
-        <div className="lg:col-span-1">
+        <div>
           <Card>
             <CardHeader>
               <CardTitle>קולאז' תמונות</CardTitle>
@@ -246,7 +246,7 @@ export function Calendar({
         </div>
 
         {/* Calendar Grid */}
-        <div className="lg:col-span-2">
+        <div>
           <Card
             style={{
               backgroundColor: customization.backgroundColor,

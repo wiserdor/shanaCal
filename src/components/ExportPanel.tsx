@@ -192,9 +192,6 @@ export function ExportPanel({
 
         // Convert to canvas
         const canvas = await html2canvas(tempDiv, {
-          width: 1400,
-          height: 1100, // Increased height to accommodate 6-row months
-          scale: 4, // Even higher scale for better quality
           useCORS: true,
           allowTaint: true,
           backgroundColor: null, // Transparent background
