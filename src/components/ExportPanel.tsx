@@ -50,14 +50,14 @@ export function ExportPanel({
       for (let i = 0; i < months.length; i++) {
         setExportProgress((i / months.length) * 100);
 
+        // Calculate how many photos this month should get
+        const photosForThisMonth =
+          basePhotosPerMonth + (i < extraPhotos ? 1 : 0);
+
         // Generate collage for this month
         let collageDataUrl = "";
         if (photos.length > 0) {
           try {
-            // Calculate how many photos this month should get
-            const photosForThisMonth =
-              basePhotosPerMonth + (i < extraPhotos ? 1 : 0);
-
             // Select photos for this month (equal distribution, no repetition)
             const startIndex =
               i * basePhotosPerMonth + Math.min(i, extraPhotos);
@@ -142,19 +142,47 @@ export function ExportPanel({
           textColor: customization.textColor,
           accentColor: customization.accentColor,
           fontFamily: customization.fontFamily,
-          fontSize: customization.fontSize
+          fontSize: customization.fontSize,
         });
 
+        // Calculate dynamic collage height based on number of photos
+        const photosForMonth = photosForThisMonth;
+        let collageHeight = "300px"; // Default height
+
+        if (photosForMonth === 0) {
+          collageHeight = "200px"; // Smaller for empty state
+        } else if (photosForMonth === 1) {
+          collageHeight = "400px"; // Taller for single photo
+        } else if (photosForMonth === 2) {
+          collageHeight = "350px"; // Medium height for 2 photos
+        } else if (photosForMonth <= 4) {
+          collageHeight = "300px"; // Standard height for 3-4 photos
+        } else if (photosForMonth <= 6) {
+          collageHeight = "400px"; // Taller for 5-6 photos
+        } else {
+          collageHeight = "500px"; // Tallest for 7+ photos
+        }
+
+        console.log(
+          `Debug - Photos for month ${
+            i + 1
+          }: ${photosForMonth}, Collage height: ${collageHeight}`
+        );
+
         const collageHTML = collageDataUrl
-          ? `<img src="${collageDataUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.15); image-rendering: high-quality; image-rendering: -webkit-optimize-contrast;" alt="קולאז' תמונות" />`
+          ? `<img src="${collageDataUrl}" style="width: 100%; height: 100%; object-fit: cover; image-rendering: high-quality; image-rendering: -webkit-optimize-contrast;" alt="קולאז' תמונות" />`
           : photos.length > 0
-          ? `<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #666; font-size: 16px; box-shadow: 0 8px 16px rgba(0,0,0,0.15);">
+          ? `<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); display: flex; align-items: center; justify-content: center; color: #666; font-size: 16px;">
                  שגיאה ביצירת קולאז'
                </div>`
-          : `<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.15);"></div>`;
+          : `<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);"></div>`;
 
         tempDiv.innerHTML = `
-          <div style="display: flex; flex-direction: column; height: 100%; gap: 30px; background-color: ${customization.backgroundColor}; color: ${customization.textColor}; font-family: ${customization.fontFamily}; font-size: ${customization.fontSize}px; padding: 40px;">
+          <div style="display: flex; flex-direction: column; height: 100%; gap: 30px; background-color: ${
+            customization.backgroundColor
+          }; color: ${customization.textColor}; font-family: ${
+          customization.fontFamily
+        }; font-size: ${customization.fontSize}px; padding: 40px;">
             <!-- Title Section -->
             <div style="text-align: center; margin-bottom: 20px;">
               <h1 style="color: ${
@@ -162,16 +190,18 @@ export function ExportPanel({
               }; font-size: 32px; margin-bottom: 10px; font-weight: bold;">
                 ${monthName}
               </h1>
-              <p style="font-size: 16px; opacity: 0.8; color: ${customization.textColor};">
+              <p style="font-size: 16px; opacity: 0.8; color: ${
+                customization.textColor
+              };">
                 ${hebrewMonthYear}
               </p>
             </div>
             
             <!-- Content Section: Collage and Calendar -->
-            <div style="display: flex; flex: 1; gap: 40px; align-items: stretch; min-height: 600px;">
+            <div style="display: flex; gap: 40px; align-items: center;">
               <!-- Photo Collage Section -->
-              <div style="flex: 1; display: flex; flex-direction: column; height: 100%;">
-                <div style="width: 100%; height: 100%; display: flex; flex: 1; min-height: 600px;">
+              <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <div style="width: 100%; height: ${collageHeight}; display: flex; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 16px rgba(0,0,0,0.15);">
                   ${collageHTML}
                 </div>
               </div>

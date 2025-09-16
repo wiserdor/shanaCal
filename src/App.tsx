@@ -137,7 +137,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm border-b">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             {/* Logo/Title */}
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
@@ -239,7 +239,7 @@ function App() {
         </div>
       </header>
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         <Tabs
           value={currentStep}
           onValueChange={(value) =>

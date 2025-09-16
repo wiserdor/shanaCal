@@ -14,6 +14,22 @@ export interface CollageLayout {
   cssGridTemplate?: string;
   cssGridAreas?: string;
 }
+export interface Photo {
+  id: string;
+  file: File;
+  url: string;
+  name: string;
+}
+
+export interface CollageLayout {
+  id: string;
+  name: string;
+  rows: number;
+  cols: number;
+  template: number[][];
+  cssGridTemplate?: string;
+  cssGridAreas?: string;
+}
 
 export class PhotoCollageService {
   private layouts: CollageLayout[] = [
@@ -64,11 +80,12 @@ export class PhotoCollageService {
       cssGridTemplate: "1fr 1fr 1fr / 2fr 1fr 1fr",
       cssGridAreas: '"main img1 img2" "main img3 img4" "img5 img6 img7"',
     },
+    // FIXED: rows/cols now match the 3x2 template (3 rows, 2 cols)
     {
       id: "featured-2",
       name: "תמונה גדולה",
-      rows: 2,
-      cols: 3,
+      rows: 3,
+      cols: 2,
       template: [
         [2, 1],
         [2, 1],
@@ -136,22 +153,17 @@ export class PhotoCollageService {
   ): Promise<string> {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Could not get canvas context");
 
-    if (!ctx) {
-      throw new Error("Could not get canvas context");
-    }
-
-    // Use higher resolution for better quality
+    // HiDPI
     const scale = 2;
     canvas.width = width * scale;
     canvas.height = height * scale;
-
-    // Enable high-quality rendering
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
     ctx.scale(scale, scale);
 
-    // Fill background with subtle gradient
+    // background
     const gradient = ctx.createLinearGradient(0, 0, width, height);
     gradient.addColorStop(0, "#f8fafc");
     gradient.addColorStop(1, "#f1f5f9");
@@ -163,146 +175,57 @@ export class PhotoCollageService {
 
     let photoIndex = 0;
 
+    // FIX: honor colspan-like template by skipping spanned columns
     for (let row = 0; row < layout.rows; row++) {
-      for (let col = 0; col < layout.cols; col++) {
-        const cellSpan = layout.template[row][col];
+      for (let col = 0; col < layout.cols; ) {
+        const span = layout.template[row]?.[col] ?? 0;
 
-        if (cellSpan > 0 && photoIndex < photos.length) {
+        if (span > 0 && photoIndex < photos.length) {
           const photo = photos[photoIndex];
 
-          // Calculate cell dimensions
           const cellX = col * cellWidth;
           const cellY = row * cellHeight;
-          const cellW = cellWidth * cellSpan;
+          const cellW = cellWidth * span;
           const cellH = cellHeight;
 
-          // Create image element
-          const img = new Image();
-          img.crossOrigin = "anonymous";
+          const img = await this.loadImage(photo.url);
 
-          await new Promise<void>((resolve, reject) => {
-            img.onload = () => {
-              try {
-                // Calculate aspect ratio and positioning
-                const imgAspect = img.width / img.height;
-                const cellAspect = cellW / cellH;
+          // rounded clip
+          ctx.save();
+          const radius = Math.min(cellW, cellH) * 0.02;
+          ctx.beginPath();
+          // @ts-ignore roundRect TS lib if needed
+          ctx.roundRect(cellX, cellY, cellW, cellH, radius);
+          ctx.clip();
 
-                let drawWidth = cellW;
-                let drawHeight = cellH;
-                let drawX = cellX;
-                let drawY = cellY;
-                let sourceX = 0;
-                let sourceY = 0;
-                let sourceWidth = img.width;
-                let sourceHeight = img.height;
+          // FIX: centralized, aspect-safe drawing
+          this.drawImageFit(ctx, img, cellX, cellY, cellW, cellH, fitMode);
 
-                if (fitMode === "contain") {
-                  // CSS object-fit: contain - scale to fit within cell, maintain aspect ratio
-                  if (imgAspect > cellAspect) {
-                    // Image is wider than cell - fit to width
-                    drawHeight = cellW / imgAspect;
-                    drawY = cellY + (cellH - drawHeight) / 2;
-                  } else {
-                    // Image is taller than cell - fit to height
-                    drawWidth = cellH * imgAspect;
-                    drawX = cellX + (cellW - drawWidth) / 2;
-                  }
-                } else {
-                  // CSS object-fit: cover - scale to fill cell, maintain aspect ratio, crop if needed
-                  if (imgAspect > cellAspect) {
-                    // Image is wider than cell - fit to height, crop width
-                    drawHeight = cellH;
-                    drawWidth = cellH * imgAspect;
-                    drawX = cellX + (cellW - drawWidth) / 2;
+          ctx.restore();
 
-                    // Calculate source crop
-                    sourceWidth = img.width * (cellW / drawWidth);
-                    sourceX = (img.width - sourceWidth) / 2;
-                  } else {
-                    // Image is taller than cell - fit to width, crop height
-                    drawWidth = cellW;
-                    drawHeight = cellW / imgAspect;
-                    drawY = cellY + (cellH - drawHeight) / 2;
+          // border + shadow
+          ctx.shadowColor = "rgba(0, 0, 0, 0.2)";
+          ctx.shadowBlur = 8;
+          ctx.shadowOffsetX = 2;
+          ctx.shadowOffsetY = 2;
 
-                    // Calculate source crop
-                    sourceHeight = img.height * (cellH / drawHeight);
-                    sourceY = (img.height - sourceHeight) / 2;
-                  }
-                }
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          // @ts-ignore
+          ctx.roundRect(cellX, cellY, cellW, cellH, radius);
+          ctx.stroke();
 
-                // Add subtle shadow/border effect
-                ctx.save();
-
-                // Create shadow
-                ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
-                ctx.shadowBlur = 8;
-                ctx.shadowOffsetX = 2;
-                ctx.shadowOffsetY = 2;
-
-                // Draw image with rounded corners effect
-                ctx.beginPath();
-                const radius = Math.min(drawWidth, drawHeight) * 0.02; // 2% of smallest dimension
-                ctx.roundRect(drawX, drawY, drawWidth, drawHeight, radius);
-                ctx.clip();
-
-                // Draw image with proper aspect ratio handling
-                if (
-                  fitMode === "cover" &&
-                  (sourceX > 0 ||
-                    sourceY > 0 ||
-                    sourceWidth < img.width ||
-                    sourceHeight < img.height)
-                ) {
-                  // Use source cropping for cover mode
-                  ctx.drawImage(
-                    img,
-                    sourceX,
-                    sourceY,
-                    sourceWidth,
-                    sourceHeight,
-                    drawX,
-                    drawY,
-                    drawWidth,
-                    drawHeight
-                  );
-                } else {
-                  // Use full image for contain mode or when no cropping needed
-                  ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
-                }
-
-                // Add enhanced border and shadow
-                ctx.restore();
-
-                // Add shadow
-                ctx.shadowColor = "rgba(0, 0, 0, 0.2)";
-                ctx.shadowBlur = 8;
-                ctx.shadowOffsetX = 2;
-                ctx.shadowOffsetY = 2;
-
-                // Add border
-                ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                ctx.roundRect(drawX, drawY, drawWidth, drawHeight, radius);
-                ctx.stroke();
-
-                // Reset shadow
-                ctx.shadowColor = "transparent";
-                ctx.shadowBlur = 0;
-                ctx.shadowOffsetX = 0;
-                ctx.shadowOffsetY = 0;
-
-                resolve();
-              } catch (error) {
-                reject(error);
-              }
-            };
-            img.onerror = reject;
-            img.src = photo.url;
-          });
+          // reset shadow
+          ctx.shadowColor = "transparent";
+          ctx.shadowBlur = 0;
+          ctx.shadowOffsetX = 0;
+          ctx.shadowOffsetY = 0;
 
           photoIndex++;
         }
+
+        col += Math.max(1, span); // <- skip spanned columns
       }
     }
 
@@ -315,20 +238,10 @@ export class PhotoCollageService {
     height: number = 600,
     fitMode: "contain" | "cover" = "cover"
   ): Promise<string> {
-    if (photos.length === 0) {
-      return this.createEmptyCollage(width, height);
-    }
+    if (photos.length === 0) return this.createEmptyCollage(width, height);
 
-    // Select random photos (up to 6 for better layouts)
-    const selectedPhotos = photos
-      .sort(() => Math.random() - 0.5)
-      .slice(0, Math.min(6, photos.length));
+    const selectedPhotos = photos.sort(() => Math.random() - 0.5);
 
-    console.log(
-      `Creating professional collage with ${selectedPhotos.length} photos`
-    );
-
-    // Use the new professional collage method
     return this.createProfessionalCollage(
       selectedPhotos,
       width,
@@ -345,22 +258,15 @@ export class PhotoCollageService {
   ): Promise<string> {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Could not get canvas context");
 
-    if (!ctx) {
-      throw new Error("Could not get canvas context");
-    }
-
-    // Use higher resolution for better quality
     const scale = 2;
     canvas.width = width * scale;
     canvas.height = height * scale;
-
-    // Enable high-quality rendering
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
     ctx.scale(scale, scale);
 
-    // Create professional background
     const gradient = ctx.createRadialGradient(
       width / 2,
       height / 2,
@@ -375,7 +281,7 @@ export class PhotoCollageService {
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, height);
 
-    // Add subtle texture
+    // subtle texture
     ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
     for (let i = 0; i < width; i += 60) {
       for (let j = 0; j < height; j += 60) {
@@ -387,7 +293,6 @@ export class PhotoCollageService {
       }
     }
 
-    // Create professional layout based on number of photos
     const photoCount = photos.length;
     const padding = 20;
     const innerWidth = width - padding * 2;
@@ -443,8 +348,18 @@ export class PhotoCollageService {
         innerHeight,
         fitMode
       );
-    } else {
+    } else if (photoCount === 6) {
       await this.drawSixPhotos(
+        ctx,
+        photos,
+        padding,
+        padding,
+        innerWidth,
+        innerHeight,
+        fitMode
+      );
+    } else if (photoCount >= 7) {
+      await this.drawManyPhotos(
         ctx,
         photos,
         padding,
@@ -456,6 +371,58 @@ export class PhotoCollageService {
     }
 
     return canvas.toDataURL("image/png");
+  }
+
+  // ===== NEW central aspect-safe helper =====
+  private drawImageFit(
+    ctx: CanvasRenderingContext2D,
+    img: HTMLImageElement,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    fitMode: "contain" | "cover"
+  ): void {
+    const imgW = img.width;
+    const imgH = img.height;
+    const imgAspect = imgW / imgH;
+    const rectAspect = w / h;
+
+    if (fitMode === "cover") {
+      // crop source to fill destination
+      let sx = 0,
+        sy = 0,
+        sw = imgW,
+        sh = imgH;
+
+      if (imgAspect > rectAspect) {
+        // crop width
+        const targetW = imgH * rectAspect;
+        sx = (imgW - targetW) / 2;
+        sw = targetW;
+      } else {
+        // crop height
+        const targetH = imgW / rectAspect;
+        sy = (imgH - targetH) / 2;
+        sh = targetH;
+      }
+      ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+    } else {
+      // contain: letterbox inside destination
+      let dw = w,
+        dh = h,
+        dx = x,
+        dy = y;
+
+      if (imgAspect > rectAspect) {
+        dh = w / imgAspect;
+        dy = y + (h - dh) / 2;
+      } else {
+        dw = h * imgAspect;
+        dx = x + (w - dw) / 2;
+      }
+      ctx.drawImage(img, 0, 0, imgW, imgH, dx, dy, dw, dh);
+    }
   }
 
   private async drawSinglePhoto(
@@ -470,17 +437,14 @@ export class PhotoCollageService {
     const img = await this.loadImage(photo.url);
     const radius = 16;
 
-    // Create clipping path for rounded corners
     ctx.save();
     ctx.beginPath();
+    // @ts-ignore
     ctx.roundRect(x, y, width, height, radius);
     ctx.clip();
-
-    // Draw image
-    this.drawImageInRect(ctx, img, x, y, width, height, fitMode);
+    this.drawImageFit(ctx, img, x, y, width, height, fitMode);
     ctx.restore();
 
-    // Add shadow and border
     this.addImageEffects(ctx, x, y, width, height, radius);
   }
 
@@ -503,10 +467,11 @@ export class PhotoCollageService {
 
       ctx.save();
       ctx.beginPath();
+      // @ts-ignore
       ctx.roundRect(photoX, y, photoWidth, height, radius);
       ctx.clip();
 
-      this.drawImageInRect(ctx, img, photoX, y, photoWidth, height, fitMode);
+      this.drawImageFit(ctx, img, photoX, y, photoWidth, height, fitMode);
       ctx.restore();
 
       this.addImageEffects(ctx, photoX, y, photoWidth, height, radius);
@@ -528,18 +493,21 @@ export class PhotoCollageService {
     const bottomY = y + topHeight + gap;
     const bottomWidth = (width - gap) / 2;
 
-    // Top photo (main)
-    const img1 = await this.loadImage(photos[0].url);
-    const radius1 = 14;
-    ctx.save();
-    ctx.beginPath();
-    ctx.roundRect(x, y, width, topHeight, radius1);
-    ctx.clip();
-    this.drawImageInRect(ctx, img1, x, y, width, topHeight, fitMode);
-    ctx.restore();
-    this.addImageEffects(ctx, x, y, width, topHeight, radius1);
+    // Top
+    {
+      const img1 = await this.loadImage(photos[0].url);
+      const radius1 = 14;
+      ctx.save();
+      ctx.beginPath();
+      // @ts-ignore
+      ctx.roundRect(x, y, width, topHeight, radius1);
+      ctx.clip();
+      this.drawImageFit(ctx, img1, x, y, width, topHeight, fitMode);
+      ctx.restore();
+      this.addImageEffects(ctx, x, y, width, topHeight, radius1);
+    }
 
-    // Bottom photos
+    // Bottom 2
     for (let i = 1; i < 3; i++) {
       const img = await this.loadImage(photos[i].url);
       const photoX = x + (i - 1) * (bottomWidth + gap);
@@ -547,9 +515,10 @@ export class PhotoCollageService {
 
       ctx.save();
       ctx.beginPath();
+      // @ts-ignore
       ctx.roundRect(photoX, bottomY, bottomWidth, bottomHeight, radius);
       ctx.clip();
-      this.drawImageInRect(
+      this.drawImageFit(
         ctx,
         img,
         photoX,
@@ -594,9 +563,10 @@ export class PhotoCollageService {
 
       ctx.save();
       ctx.beginPath();
+      // @ts-ignore
       ctx.roundRect(photoX, photoY, photoWidth, photoHeight, radius);
       ctx.clip();
-      this.drawImageInRect(
+      this.drawImageFit(
         ctx,
         img,
         photoX,
@@ -632,7 +602,7 @@ export class PhotoCollageService {
     const bottomHeight = height * 0.55;
     const bottomY = y + topHeight + gap;
 
-    // Top row - 2 photos
+    // Top 2
     const topWidth = (width - gap) / 2;
     for (let i = 0; i < 2; i++) {
       const img = await this.loadImage(photos[i].url);
@@ -641,15 +611,16 @@ export class PhotoCollageService {
 
       ctx.save();
       ctx.beginPath();
+      // @ts-ignore
       ctx.roundRect(photoX, y, topWidth, topHeight, radius);
       ctx.clip();
-      this.drawImageInRect(ctx, img, photoX, y, topWidth, topHeight, fitMode);
+      this.drawImageFit(ctx, img, photoX, y, topWidth, topHeight, fitMode);
       ctx.restore();
 
       this.addImageEffects(ctx, photoX, y, topWidth, topHeight, radius);
     }
 
-    // Bottom row - 3 photos
+    // Bottom 3
     const bottomWidth = (width - 2 * gap) / 3;
     for (let i = 2; i < 5; i++) {
       const img = await this.loadImage(photos[i].url);
@@ -658,9 +629,10 @@ export class PhotoCollageService {
 
       ctx.save();
       ctx.beginPath();
+      // @ts-ignore
       ctx.roundRect(photoX, bottomY, bottomWidth, bottomHeight, radius);
       ctx.clip();
-      this.drawImageInRect(
+      this.drawImageFit(
         ctx,
         img,
         photoX,
@@ -705,9 +677,10 @@ export class PhotoCollageService {
 
       ctx.save();
       ctx.beginPath();
+      // @ts-ignore
       ctx.roundRect(photoX, photoY, photoWidth, photoHeight, radius);
       ctx.clip();
-      this.drawImageInRect(
+      this.drawImageFit(
         ctx,
         img,
         photoX,
@@ -739,54 +712,6 @@ export class PhotoCollageService {
     });
   }
 
-  private drawImageInRect(
-    ctx: CanvasRenderingContext2D,
-    img: HTMLImageElement,
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    fitMode: "contain" | "cover"
-  ): void {
-    const imgAspect = img.width / img.height;
-    const rectAspect = width / height;
-
-    let drawWidth, drawHeight, drawX, drawY;
-
-    if (fitMode === "cover") {
-      if (imgAspect > rectAspect) {
-        // Image is wider than rect
-        drawHeight = height;
-        drawWidth = height * imgAspect;
-        drawX = x - (drawWidth - width) / 2;
-        drawY = y;
-      } else {
-        // Image is taller than rect
-        drawWidth = width;
-        drawHeight = width / imgAspect;
-        drawX = x;
-        drawY = y - (drawHeight - height) / 2;
-      }
-    } else {
-      // contain mode
-      if (imgAspect > rectAspect) {
-        // Image is wider than rect
-        drawWidth = width;
-        drawHeight = width / imgAspect;
-        drawX = x;
-        drawY = y + (height - drawHeight) / 2;
-      } else {
-        // Image is taller than rect
-        drawHeight = height;
-        drawWidth = height * imgAspect;
-        drawX = x + (width - drawWidth) / 2;
-        drawY = y;
-      }
-    }
-
-    ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
-  }
-
   private addImageEffects(
     ctx: CanvasRenderingContext2D,
     x: number,
@@ -795,20 +720,18 @@ export class PhotoCollageService {
     height: number,
     radius: number
   ): void {
-    // Add shadow
     ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
     ctx.shadowBlur = 12;
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 4;
 
-    // Add border
     ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
     ctx.lineWidth = 2;
     ctx.beginPath();
+    // @ts-ignore
     ctx.roundRect(x, y, width, height, radius);
     ctx.stroke();
 
-    // Reset shadow
     ctx.shadowColor = "transparent";
     ctx.shadowBlur = 0;
     ctx.shadowOffsetX = 0;
@@ -826,9 +749,6 @@ export class PhotoCollageService {
       throw new Error("Layout does not support CSS Grid");
     }
 
-    console.log(`Creating CSS Grid collage with ${photos.length} photos`);
-
-    // Create a temporary div with CSS Grid
     const tempDiv = document.createElement("div");
     tempDiv.style.cssText = `
       display: grid;
@@ -846,23 +766,19 @@ export class PhotoCollageService {
       top: -9999px;
     `;
 
-    console.log("Grid template:", layout.cssGridTemplate);
-    console.log("Grid areas:", layout.cssGridAreas);
-
-    // Create image elements for each photo (simple grid placement)
-    const imagePromises = [];
+    const imagePromises: Promise<void>[] = [];
     const totalCells = layout.rows * layout.cols;
     const photosToShow = Math.min(photos.length, totalCells);
-
-    console.log(`Placing ${photosToShow} photos in ${totalCells} grid cells`);
 
     for (let i = 0; i < photosToShow; i++) {
       const img = document.createElement("img");
       img.src = photos[i].url;
+      img.crossOrigin = "anonymous";
       img.style.cssText = `
         width: 100%;
         height: 100%;
         object-fit: ${fitMode};
+        object-position: center; /* FIX */
         border-radius: 8px;
         display: block;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -870,16 +786,11 @@ export class PhotoCollageService {
         transition: transform 0.2s ease;
       `;
 
-      // Add crossOrigin to handle CORS
-      img.crossOrigin = "anonymous";
-
       tempDiv.appendChild(img);
 
-      // Create promise for image loading
       const imagePromise = new Promise<void>((resolve, reject) => {
-        if (img.complete) {
-          resolve();
-        } else {
+        if (img.complete) resolve();
+        else {
           img.onload = () => resolve();
           img.onerror = () =>
             reject(new Error(`Failed to load image: ${photos[i].url}`));
@@ -889,39 +800,23 @@ export class PhotoCollageService {
       imagePromises.push(imagePromise);
     }
 
-    // Add to DOM
     document.body.appendChild(tempDiv);
 
     try {
-      // Wait for all images to load
       await Promise.all(imagePromises);
-      console.log("All images loaded successfully");
-
-      // Use html2canvas to capture the grid
       const html2canvas = (await import("html2canvas")).default;
       const canvasResult = await html2canvas(tempDiv, {
-        width: width,
-        height: height,
+        width,
+        height,
         scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: null,
         logging: false,
-        onclone: (clonedDoc) => {
-          // Ensure the cloned document has the same styles
-          const clonedDiv = clonedDoc.querySelector(
-            'div[style*="display: grid"]'
-          );
-          if (clonedDiv) {
-            console.log("Grid element found in cloned document");
-          }
-        },
       });
 
-      console.log("Canvas captured successfully");
       return canvasResult.toDataURL("image/png");
     } finally {
-      // Clean up
       document.body.removeChild(tempDiv);
     }
   }
@@ -929,15 +824,11 @@ export class PhotoCollageService {
   private createEmptyCollage(width: number, height: number): string {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-
-    if (!ctx) {
-      throw new Error("Could not get canvas context");
-    }
+    if (!ctx) throw new Error("Could not get canvas context");
 
     canvas.width = width;
     canvas.height = height;
 
-    // Fill background with subtle gradient
     const gradient = ctx.createLinearGradient(0, 0, width, height);
     gradient.addColorStop(0, "#f8fafc");
     gradient.addColorStop(0.5, "#f1f5f9");
@@ -945,7 +836,6 @@ export class PhotoCollageService {
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, height);
 
-    // Add subtle pattern overlay
     ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
     for (let i = 0; i < width; i += 40) {
       for (let j = 0; j < height; j += 40) {
@@ -968,13 +858,8 @@ export class PhotoCollageService {
       img.onload = () => {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
+        if (!ctx) return reject(new Error("Could not get canvas context"));
 
-        if (!ctx) {
-          reject(new Error("Could not get canvas context"));
-          return;
-        }
-
-        // Calculate new dimensions
         let { width, height } = img;
         if (width > height) {
           if (width > maxWidth) {
@@ -991,20 +876,18 @@ export class PhotoCollageService {
         canvas.width = width;
         canvas.height = height;
 
-        // Draw and resize
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
         ctx.drawImage(img, 0, 0, width, height);
 
         canvas.toBlob(
           (blob) => {
-            if (blob) {
-              const resizedFile = new File([blob], file.name, {
-                type: file.type,
-                lastModified: Date.now(),
-              });
-              resolve(resizedFile);
-            } else {
-              reject(new Error("Failed to resize image"));
-            }
+            if (!blob) return reject(new Error("Failed to resize image"));
+            const resizedFile = new File([blob], file.name, {
+              type: file.type,
+              lastModified: Date.now(),
+            });
+            resolve(resizedFile);
           },
           file.type,
           0.9
@@ -1013,6 +896,91 @@ export class PhotoCollageService {
       img.onerror = reject;
       img.src = URL.createObjectURL(file);
     });
+  }
+
+  // Method to handle 7+ photos with a grid layout
+  private async drawManyPhotos(
+    ctx: CanvasRenderingContext2D,
+    photos: Photo[],
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    fitMode: "contain" | "cover"
+  ): Promise<void> {
+    const photoCount = photos.length;
+
+    // Calculate grid dimensions based on photo count
+    let cols: number;
+    let rows: number;
+
+    if (photoCount <= 9) {
+      cols = 3;
+      rows = Math.ceil(photoCount / 3);
+    } else if (photoCount <= 16) {
+      cols = 4;
+      rows = Math.ceil(photoCount / 4);
+    } else {
+      cols = 5;
+      rows = Math.ceil(photoCount / 5);
+    }
+
+    const cellWidth = width / cols;
+    const cellHeight = height / rows;
+    const gap = 8;
+    const actualCellWidth = cellWidth - gap;
+    const actualCellHeight = cellHeight - gap;
+
+    for (let i = 0; i < photoCount; i++) {
+      const row = Math.floor(i / cols);
+      const col = i % cols;
+
+      const cellX = x + col * cellWidth + gap / 2;
+      const cellY = y + row * cellHeight + gap / 2;
+
+      try {
+        const img = await this.loadImage(photos[i].url);
+
+        // Add shadow effect
+        ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+
+        // Add border
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+        ctx.lineWidth = 3;
+
+        this.drawImageFit(
+          ctx,
+          img,
+          cellX,
+          cellY,
+          actualCellWidth,
+          actualCellHeight,
+          fitMode
+        );
+
+        // Reset shadow
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+      } catch (error) {
+        console.error(`Error loading image ${i}:`, error);
+        // Draw placeholder for failed images
+        ctx.fillStyle = "#f0f0f0";
+        ctx.fillRect(cellX, cellY, actualCellWidth, actualCellHeight);
+        ctx.fillStyle = "#999";
+        ctx.font = "12px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText(
+          "Error",
+          cellX + actualCellWidth / 2,
+          cellY + actualCellHeight / 2
+        );
+      }
+    }
   }
 }
 
