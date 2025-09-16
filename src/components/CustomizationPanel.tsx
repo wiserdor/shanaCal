@@ -255,6 +255,34 @@ export function CustomizationPanel({
                       : "כל התמונה תוצג במלואה עם שוליים אם נדרש"}
                   </p>
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="alternating-layout">פריסת עמודים</Label>
+                  <div className="flex items-center space-x-3">
+                    <input
+                      id="alternating-layout"
+                      type="checkbox"
+                      checked={localCustomization.alternatingLayout}
+                      onChange={(e) => {
+                        const updated = {
+                          ...localCustomization,
+                          alternatingLayout: e.target.checked,
+                        };
+                        setLocalCustomization(updated);
+                        onCustomizationUpdate(updated);
+                      }}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <Label htmlFor="alternating-layout" className="text-sm">
+                      פריסה מתחלפת - לוח שנה ותמונות מתחלפים בצדדים
+                    </Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {localCustomization.alternatingLayout
+                      ? "כל חודש יהיה עם פריסה שונה - לוח שנה ותמונות מתחלפים בצדדים"
+                      : "כל החודשים יהיו עם אותה פריסה - לוח שנה מימין ותמונות משמאל"}
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>

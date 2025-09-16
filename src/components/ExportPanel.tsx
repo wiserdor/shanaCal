@@ -169,6 +169,17 @@ export function ExportPanel({
           }: ${photosForMonth}, Collage height: ${collageHeight}`
         );
 
+        // Determine layout for this month
+        const isAlternatingLayout = customization.alternatingLayout;
+        const isEvenMonth = i % 2 === 0;
+        const shouldReverseLayout = isAlternatingLayout && !isEvenMonth;
+
+        console.log(
+          `Debug - Month ${
+            i + 1
+          } layout: alternating=${isAlternatingLayout}, even=${isEvenMonth}, reverse=${shouldReverseLayout}`
+        );
+
         const collageHTML = collageDataUrl
           ? `<img src="${collageDataUrl}" style="width: 100%; height: 100%; object-fit: cover; image-rendering: high-quality; image-rendering: -webkit-optimize-contrast;" alt="קולאז' תמונות" />`
           : photos.length > 0
@@ -198,7 +209,9 @@ export function ExportPanel({
             </div>
             
             <!-- Content Section: Collage and Calendar -->
-            <div style="display: flex; gap: 40px; align-items: center;">
+            <div style="display: flex; gap: 40px; align-items: center; flex-direction: ${
+              shouldReverseLayout ? "row-reverse" : "row"
+            };">
               <!-- Photo Collage Section -->
               <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                 <div style="width: 100%; height: ${collageHeight}; display: flex; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 16px rgba(0,0,0,0.15);">

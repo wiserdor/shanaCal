@@ -26,6 +26,7 @@ function App() {
     fontFamily: "Noto Sans Hebrew",
     fontSize: 16,
     imageFitMode: "cover" as "contain" | "cover",
+    alternatingLayout: false,
   });
   const [calendarMonths] = useState(generateCalendarMonths());
   const [isLoading, setIsLoading] = useState(true);
@@ -171,6 +172,7 @@ function App() {
                       fontFamily: "Noto Sans Hebrew",
                       fontSize: 16,
                       imageFitMode: "cover",
+                      alternatingLayout: false,
                     });
                   }
                 }}
@@ -226,6 +228,7 @@ function App() {
                         fontFamily: "Noto Sans Hebrew",
                         fontSize: 16,
                         imageFitMode: "cover",
+                        alternatingLayout: false,
                       });
                       setIsMobileMenuOpen(false);
                     }

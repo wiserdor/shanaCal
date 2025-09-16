@@ -20,6 +20,7 @@ export interface Customization {
   fontFamily: string;
   fontSize: number;
   imageFitMode: "contain" | "cover";
+  alternatingLayout: boolean;
 }
 
 export interface CalendarProject {
