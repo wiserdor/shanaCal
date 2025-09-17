@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import type { Photo, PersonalDate, Customization } from "../types";
+import type {
+  Photo,
+  PersonalDate,
+  Customization,
+  HebrewHoliday,
+} from "../types";
 import { hebrewCalendarService } from "../services/hebrewCalendar";
 import { photoCollageService } from "../services/photoCollage";
 import {
@@ -25,14 +30,14 @@ export function Calendar({
 }: CalendarProps) {
   const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
   const [hebrewHolidays, setHebrewHolidays] = useState<{
-    [key: string]: any[];
+    [key: string]: HebrewHoliday[];
   }>({});
   const [collages, setCollages] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     // Load Hebrew holidays for all months
     const loadHolidays = async () => {
-      const holidays: { [key: string]: any[] } = {};
+      const holidays: { [key: string]: HebrewHoliday[] } = {};
 
       for (const month of months) {
         const key = `${month.getFullYear()}-${month.getMonth() + 1}`;
@@ -42,7 +47,7 @@ export function Calendar({
             month.getMonth() + 1
           );
           holidays[key] = monthHolidays;
-        } catch (error) {
+        } catch {
           // Use fallback data
           holidays[key] = hebrewCalendarService.getFallbackHolidays(
             month.getFullYear(),
