@@ -195,15 +195,15 @@ export function ExportPanel({
           customization.fontFamily
         }; font-size: ${customization.fontSize}px; padding: 40px;">
             <!-- Title Section -->
-            <div style="text-align: center; margin-bottom: 20px;">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 20px; width: 100%;">
               <h1 style="color: ${
                 customization.accentColor
-              }; font-size: 32px; margin-bottom: 10px; font-weight: bold;">
+              }; font-size: 32px; margin: 0 0 10px 0; font-weight: bold; text-align: center; width: auto; direction: rtl;">
                 ${monthName}
               </h1>
               <p style="font-size: 16px; opacity: 0.8; color: ${
                 customization.textColor
-              };">
+              }; text-align: center; margin: 0; width: auto; direction: rtl;">
                 ${hebrewMonthYear}
               </p>
             </div>
@@ -373,7 +373,7 @@ export function ExportPanel({
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
+      <div className="text-center flex flex-col items-center">
         <h2 className="text-2xl font-bold mb-2">ייצוא לוח השנה</h2>
         <p className="text-muted-foreground">
           ייצא את לוח השנה כקובץ PDF באיכות גבוהה להדפסה על נייר A3

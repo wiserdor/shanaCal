@@ -107,7 +107,7 @@ export function PhotoUpload({
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
+      <div className="text-center justify-center flex flex-col items-center">
         <h2 className="text-2xl font-bold mb-2">העלאת תמונות</h2>
         <p className="text-muted-foreground">
           העלה תמונות שישמשו ליצירת קולאז'ים עבור כל חודש בלוח השנה
@@ -127,13 +127,13 @@ export function PhotoUpload({
         onClick={openFileDialog}
       >
         <CardContent className="p-8 text-center">
-          <div className="space-y-4">
-            <div className="text-6xl text-muted-foreground">📸</div>
+          <div className="space-y-4 text-center">
+            <div className="text-6xl text-muted-foreground text-center">📸</div>
             <div>
-              <p className="text-lg font-medium">
+              <p className="text-lg font-medium text-center text-muted-foreground">
                 גרור תמונות לכאן או לחץ לבחירה
               </p>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-muted-foreground mt-1 text-center">
                 תמונות JPG, PNG, GIF עד 5MB
               </p>
             </div>

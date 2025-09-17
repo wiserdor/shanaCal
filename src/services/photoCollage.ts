@@ -194,7 +194,6 @@ export class PhotoCollageService {
           ctx.save();
           const radius = Math.min(cellW, cellH) * 0.02;
           ctx.beginPath();
-          // @ts-ignore roundRect TS lib if needed
           ctx.roundRect(cellX, cellY, cellW, cellH, radius);
           ctx.clip();
 
@@ -212,7 +211,6 @@ export class PhotoCollageService {
           ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
           ctx.lineWidth = 3;
           ctx.beginPath();
-          // @ts-ignore
           ctx.roundRect(cellX, cellY, cellW, cellH, radius);
           ctx.stroke();
 
@@ -439,7 +437,6 @@ export class PhotoCollageService {
 
     ctx.save();
     ctx.beginPath();
-    // @ts-ignore
     ctx.roundRect(x, y, width, height, radius);
     ctx.clip();
     this.drawImageFit(ctx, img, x, y, width, height, fitMode);
@@ -467,7 +464,6 @@ export class PhotoCollageService {
 
       ctx.save();
       ctx.beginPath();
-      // @ts-ignore
       ctx.roundRect(photoX, y, photoWidth, height, radius);
       ctx.clip();
 
@@ -499,7 +495,7 @@ export class PhotoCollageService {
       const radius1 = 14;
       ctx.save();
       ctx.beginPath();
-      // @ts-ignore
+
       ctx.roundRect(x, y, width, topHeight, radius1);
       ctx.clip();
       this.drawImageFit(ctx, img1, x, y, width, topHeight, fitMode);
@@ -515,7 +511,6 @@ export class PhotoCollageService {
 
       ctx.save();
       ctx.beginPath();
-      // @ts-ignore
       ctx.roundRect(photoX, bottomY, bottomWidth, bottomHeight, radius);
       ctx.clip();
       this.drawImageFit(
@@ -563,7 +558,6 @@ export class PhotoCollageService {
 
       ctx.save();
       ctx.beginPath();
-      // @ts-ignore
       ctx.roundRect(photoX, photoY, photoWidth, photoHeight, radius);
       ctx.clip();
       this.drawImageFit(
@@ -611,7 +605,6 @@ export class PhotoCollageService {
 
       ctx.save();
       ctx.beginPath();
-      // @ts-ignore
       ctx.roundRect(photoX, y, topWidth, topHeight, radius);
       ctx.clip();
       this.drawImageFit(ctx, img, photoX, y, topWidth, topHeight, fitMode);
@@ -629,7 +622,6 @@ export class PhotoCollageService {
 
       ctx.save();
       ctx.beginPath();
-      // @ts-ignore
       ctx.roundRect(photoX, bottomY, bottomWidth, bottomHeight, radius);
       ctx.clip();
       this.drawImageFit(
@@ -677,7 +669,6 @@ export class PhotoCollageService {
 
       ctx.save();
       ctx.beginPath();
-      // @ts-ignore
       ctx.roundRect(photoX, photoY, photoWidth, photoHeight, radius);
       ctx.clip();
       this.drawImageFit(
@@ -728,7 +719,6 @@ export class PhotoCollageService {
     ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
     ctx.lineWidth = 2;
     ctx.beginPath();
-    // @ts-ignore
     ctx.roundRect(x, y, width, height, radius);
     ctx.stroke();
 

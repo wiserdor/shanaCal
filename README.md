@@ -121,7 +121,7 @@ npm run build
 ## טכנולוגיות
 
 - **Frontend**: React 18 + TypeScript
-- **Styling**: Tailwind CSS
+- **Styling**: Tailwind CSS + ShadCN
 - **Build Tool**: Vite
 - **PDF Generation**: jsPDF + html2canvas
 - **Hebrew Calendar**: Hebcal API
@@ -178,4 +178,5 @@ MIT License
 ---
 
 **יוצר לוח השנה האישי** - יוצר לוח שנה עברי מותאם אישית עם תמונות וחגים
+
 # shanaCal

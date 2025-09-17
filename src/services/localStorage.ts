@@ -35,7 +35,7 @@ export class LocalStorageService {
       const serializablePhotos = JSON.parse(stored);
       // Convert back to Photo objects
       // Note: We'll need to handle File objects separately
-      return serializablePhotos.map((photo: any) => ({
+      return serializablePhotos.map((photo: Photo) => ({
         id: photo.id,
         name: photo.name,
         url: photo.url,
@@ -72,7 +72,7 @@ export class LocalStorageService {
       if (!stored) return [];
 
       const serializableDates = JSON.parse(stored);
-      return serializableDates.map((date: any) => ({
+      return serializableDates.map((date: PersonalDate) => ({
         id: date.id,
         title: date.title,
         date: new Date(date.date),

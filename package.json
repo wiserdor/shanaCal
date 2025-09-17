@@ -1,8 +1,31 @@
 {
   "name": "shanacal",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "Hebrew Personal Calendar Creator - Create beautiful Hebrew calendars with photo collages, personal dates, and Hebrew holidays",
   "type": "module",
+  "homepage": "https://github.com/your-username/shanacal#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/shanacal.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/shanacal/issues"
+  },
+  "keywords": [
+    "hebrew",
+    "calendar",
+    "jewish",
+    "photos",
+    "collage",
+    "pdf",
+    "react",
+    "typescript",
+    "hebrew-calendar",
+    "personal-calendar",
+    "photo-calendar"
+  ],
+  "author": "ShanaCal Contributors",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

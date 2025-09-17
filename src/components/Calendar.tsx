@@ -234,7 +234,7 @@ export function Calendar({
                 <img
                   src={monthCollage}
                   alt={`קולאז' לחודש ${monthName}`}
-                  className="w-full h-48 object-cover rounded-lg"
+                  className="w-full h-full object-cover rounded-lg"
                 />
               ) : (
                 <div className="w-full h-48 bg-muted rounded-lg flex items-center justify-center text-muted-foreground">
@@ -276,12 +276,12 @@ export function Calendar({
               </div>
 
               {/* Legend */}
-              <div className="mt-4 flex justify-center space-x-4 text-xs">
-                <div className="flex items-center space-x-1">
+              <div className="mt-4 flex justify-center gap-4 text-xs">
+                <div className="flex items-center gap-1">
                   <div className="w-3 h-3 bg-blue-100 rounded"></div>
                   <span>תאריכים אישיים</span>
                 </div>
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center gap-1">
                   <div className="w-3 h-3 bg-red-100 rounded"></div>
                   <span>חגים עבריים</span>
                 </div>

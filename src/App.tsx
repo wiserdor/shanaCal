@@ -136,17 +136,33 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" dir="rtl">
       <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            {/* Logo/Title */}
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">
-              מחולל לוח שנה
-            </h1>
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center py-4">
+            {/* Mobile Menu Button - Left side for RTL */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="md:hidden ml-4"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </Button>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-4 space-x-reverse">
+            {/* Centered Title */}
+            <div className="flex-1 flex justify-center">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 text-center">
+                מחולל לוח שנה
+              </h1>
+            </div>
+
+            {/* Desktop Navigation - Right side for RTL */}
+            <div className="hidden md:flex items-center gap-4">
               <StorageIndicator />
               <div className="text-sm text-gray-600">
                 הנתונים נשמרים אוטומטית
@@ -181,26 +197,15 @@ function App() {
               </Button>
             </div>
 
-            {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="md:hidden"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </Button>
+            {/* Spacer for mobile to balance the hamburger menu */}
+            <div className="md:hidden w-10"></div>
           </div>
 
           {/* Mobile Menu */}
           {isMobileMenuOpen && (
             <div className="md:hidden border-t border-gray-200 py-4">
-              <div className="flex flex-col space-y-4 space-y-reverse">
-                <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-center">
                   <StorageIndicator />
                 </div>
                 <div className="text-sm text-gray-600 text-center">
@@ -242,7 +247,7 @@ function App() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-8" dir="rtl">
         <Tabs
           value={currentStep}
           onValueChange={(value) =>
@@ -251,24 +256,40 @@ function App() {
             )
           }
           className="w-full"
+          dir="rtl"
         >
           <TabsList
             className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 mb-4 sm:mb-8 h-auto"
             dir="rtl"
           >
-            <TabsTrigger value="photos" className="text-xs sm:text-sm py-2">
+            <TabsTrigger
+              value="photos"
+              className="text-xs sm:text-sm py-2 text-center"
+            >
               העלאת תמונות
             </TabsTrigger>
-            <TabsTrigger value="dates" className="text-xs sm:text-sm py-2">
+            <TabsTrigger
+              value="dates"
+              className="text-xs sm:text-sm py-2 text-center"
+            >
               תאריכים אישיים
             </TabsTrigger>
-            <TabsTrigger value="customize" className="text-xs sm:text-sm py-2">
+            <TabsTrigger
+              value="customize"
+              className="text-xs sm:text-sm py-2 text-center"
+            >
               התאמה אישית
             </TabsTrigger>
-            <TabsTrigger value="preview" className="text-xs sm:text-sm py-2">
+            <TabsTrigger
+              value="preview"
+              className="text-xs sm:text-sm py-2 text-center"
+            >
               תצוגה מקדימה
             </TabsTrigger>
-            <TabsTrigger value="export" className="text-xs sm:text-sm py-2">
+            <TabsTrigger
+              value="export"
+              className="text-xs sm:text-sm py-2 text-center"
+            >
               ייצוא
             </TabsTrigger>
           </TabsList>
@@ -301,19 +322,11 @@ function App() {
 
           <TabsContent value="preview">
             <div className="space-y-6">
-              <div className="flex justify-between items-center">
+              <div className="text-center justify-center flex flex-col items-center">
                 <h2 className="text-2xl font-bold">תצוגה מקדימה</h2>
-                <div className="space-x-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setCurrentStep("customize")}
-                  >
-                    חזור
-                  </Button>
-                  <Button onClick={() => setCurrentStep("export")}>
-                    המשך לייצוא
-                  </Button>
-                </div>
+                <p className="text-gray-600 mt-2">
+                  בדוק את הלוח שנה לפני הייצוא
+                </p>
               </div>
               <Calendar
                 months={calendarMonths}
@@ -321,6 +334,17 @@ function App() {
                 personalDates={personalDates}
                 customization={customization}
               />
+              <div className="flex justify-center gap-4 pt-6 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentStep("customize")}
+                >
+                  חזור
+                </Button>
+                <Button onClick={() => setCurrentStep("export")}>
+                  המשך לייצוא
+                </Button>
+              </div>
             </div>
           </TabsContent>
 

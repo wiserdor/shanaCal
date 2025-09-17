@@ -78,7 +78,7 @@ export function PersonalDates({
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
+      <div className="text-center justify-center flex flex-col items-center">
         <h2 className="text-2xl font-bold mb-2">תאריכים אישיים</h2>
         <p className="text-muted-foreground">
           הוסף תאריכים חשובים שיופיעו בלוח השנה
@@ -151,7 +151,7 @@ export function PersonalDates({
                 />
               </div>
             </div>
-            <div className="flex justify-end space-x-2 mt-4">
+            <div className="flex justify-end gap-2 mt-4">
               <Button variant="outline" onClick={() => setIsAdding(false)}>
                 ביטול
               </Button>

@@ -93,7 +93,7 @@ export function CustomizationPanel({
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
+      <div className="text-center justify-center flex flex-col items-center">
         <h2 className="text-2xl font-bold mb-2">התאמה אישית</h2>
         <p className="text-muted-foreground">
           התאם את הצבעים, הגופנים והעיצוב של לוח השנה
@@ -111,7 +111,7 @@ export function CustomizationPanel({
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="bg-color">צבע רקע</Label>
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center gap-3">
                     <input
                       id="bg-color"
                       type="color"
@@ -133,7 +133,7 @@ export function CustomizationPanel({
 
                 <div className="space-y-2">
                   <Label htmlFor="text-color">צבע טקסט</Label>
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center gap-3">
                     <input
                       id="text-color"
                       type="color"
@@ -155,7 +155,7 @@ export function CustomizationPanel({
 
                 <div className="space-y-2">
                   <Label htmlFor="accent-color">צבע דגש</Label>
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center gap-3">
                     <input
                       id="accent-color"
                       type="color"
@@ -186,7 +186,7 @@ export function CustomizationPanel({
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="font-size">גודל גופן</Label>
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center gap-3">
                     <input
                       id="font-size"
                       type="range"
@@ -258,7 +258,7 @@ export function CustomizationPanel({
 
                 <div className="space-y-2">
                   <Label htmlFor="alternating-layout">פריסת עמודים</Label>
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center gap-3">
                     <input
                       id="alternating-layout"
                       type="checkbox"
@@ -347,7 +347,7 @@ export function CustomizationPanel({
                     onClick={() => applyPreset(preset)}
                     className="p-3 h-auto flex flex-col items-start"
                   >
-                    <div className="flex space-x-2 mb-2">
+                    <div className="flex gap-2 mb-2">
                       <div
                         className="w-4 h-4 rounded-full border border-border"
                         style={{

@@ -54,10 +54,170 @@
   * {
     border-color: hsl(var(--border));
   }
+
+  /* Force RTL on all elements */
+  html,
+  body,
+  div,
+  span,
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  ul,
+  ol,
+  li,
+  button,
+  input,
+  textarea,
+  select,
+  label,
+  a,
+  img,
+  table,
+  tr,
+  td,
+  th {
+    direction: rtl !important;
+    text-align: right !important;
+  }
+
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
     font-family: "Noto Sans Hebrew", Arial, sans-serif;
-    direction: rtl;
+    direction: rtl !important;
+    text-align: right !important;
+  }
+
+  /* RTL-specific styles */
+  html {
+    direction: rtl !important;
+  }
+
+  /* Ensure proper RTL layout for all containers */
+  .flex,
+  .grid,
+  .block,
+  .inline-block,
+  .inline-flex {
+    direction: rtl !important;
+  }
+
+  /* Fix all spacing for RTL */
+  .space-x-1 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 1;
+    margin-right: 0.25rem;
+    margin-left: 0;
+  }
+  .space-x-2 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 1;
+    margin-right: 0.5rem;
+    margin-left: 0;
+  }
+  .space-x-3 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 1;
+    margin-right: 0.75rem;
+    margin-left: 0;
+  }
+  .space-x-4 > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 1;
+    margin-right: 1rem;
+    margin-left: 0;
+  }
+
+  /* Force RTL text alignment */
+  .text-left,
+  .text-start {
+    text-align: right !important;
+  }
+  .text-right,
+  .text-end {
+    text-align: left !important;
+  }
+  .text-center {
+    text-align: center !important;
+  }
+
+  /* Fix margin and padding for RTL */
+  .ml-auto,
+  .ms-auto {
+    margin-left: unset !important;
+    margin-right: auto !important;
+  }
+  .mr-auto,
+  .me-auto {
+    margin-right: unset !important;
+    margin-left: auto !important;
+  }
+
+  /* Fix padding for RTL */
+  .pl-* {
+    padding-left: unset !important;
+    padding-right: var(--tw-pl) !important;
+  }
+  .pr-* {
+    padding-right: unset !important;
+    padding-left: var(--tw-pr) !important;
+  }
+
+  /* Fix margin for RTL */
+  .ml-* {
+    margin-left: unset !important;
+    margin-right: var(--tw-ml) !important;
+  }
+  .mr-* {
+    margin-right: unset !important;
+    margin-left: var(--tw-mr) !important;
+  }
+
+  /* Ensure all text elements are RTL */
+  p,
+  span,
+  div,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  li,
+  td,
+  th,
+  label,
+  button,
+  input,
+  textarea {
+    direction: rtl !important;
+    text-align: right !important;
+  }
+
+  /* Fix list items for RTL */
+  ul,
+  ol {
+    direction: rtl !important;
+    text-align: right !important;
+  }
+
+  li {
+    direction: rtl !important;
+    text-align: right !important;
+  }
+
+  /* Fix form elements for RTL */
+  input,
+  textarea,
+  select {
+    direction: rtl !important;
+    text-align: right !important;
+  }
+
+  /* Fix button text alignment */
+  button {
+    direction: rtl !important;
+    text-align: center !important;
   }
 }
