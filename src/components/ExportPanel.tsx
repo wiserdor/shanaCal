@@ -48,7 +48,13 @@ export function ExportPanel({
       const shuffledPhotos = [...photos].sort(() => Math.random() - 0.5); // Shuffle all photos once
 
       for (let i = 0; i < months.length; i++) {
+        // Use requestAnimationFrame to prevent UI blocking
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+
         setExportProgress((i / months.length) * 100);
+
+        // Small delay to prevent UI blocking on mobile
+        await new Promise((resolve) => setTimeout(resolve, 50));
 
         // Calculate how many photos this month should get
         const photosForThisMonth =
@@ -372,7 +378,22 @@ export function ExportPanel({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Loading Overlay */}
+      {isExporting && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+            <div className="text-center space-y-4">
+              <div className="text-lg font-medium">מייצא את לוח השנה...</div>
+              <Progress value={exportProgress} className="w-full" />
+              <div className="text-sm text-muted-foreground">
+                {Math.round(exportProgress)}% הושלם
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="text-center flex flex-col items-center">
         <h2 className="text-2xl font-bold mb-2">ייצוא לוח השנה</h2>
         <p className="text-muted-foreground">
@@ -494,33 +515,20 @@ export function ExportPanel({
               <CardTitle>ייצוא</CardTitle>
             </CardHeader>
             <CardContent>
-              {isExporting ? (
-                <div className="space-y-4">
-                  <div className="text-center">
-                    <div className="text-lg font-medium mb-2">
-                      מייצא את לוח השנה...
-                    </div>
-                    <Progress value={exportProgress} className="w-full" />
-                    <div className="text-sm text-muted-foreground mt-2">
-                      {Math.round(exportProgress)}% הושלם
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <Button
-                    onClick={handleExportPDF}
-                    className="w-full"
-                    size="lg"
-                  >
-                    ייצא ל-PDF
-                  </Button>
+              <div className="space-y-4">
+                <Button
+                  onClick={handleExportPDF}
+                  className="w-full"
+                  size="lg"
+                  disabled={isExporting}
+                >
+                  {isExporting ? "מייצא..." : "ייצא ל-PDF"}
+                </Button>
 
-                  <div className="text-xs text-muted-foreground text-center">
-                    הקובץ יורד אוטומטית למחשב שלך
-                  </div>
+                <div className="text-xs text-muted-foreground text-center">
+                  הקובץ יורד אוטומטית למחשב שלך
                 </div>
-              )}
+              </div>
             </CardContent>
           </Card>
         </div>
